@@ -10,18 +10,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDateTime;
 
 import static com.kdt.module.order.OrderStatus.ORDERED;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@DataJpaTest
 class PersistOrderTest {
     @Autowired
     private EntityManagerFactory factory;
     private EntityManager entityManager;
+    private EntityTransaction transaction;
 
     private Customer customer = new Customer("hejow", "moon");
     private Order order = Order.builder()
@@ -35,6 +36,7 @@ class PersistOrderTest {
     @BeforeEach
     void initManager() {
         entityManager = factory.createEntityManager();
+        transaction = entityManager.getTransaction();
     }
 
     @Nested
@@ -44,8 +46,6 @@ class PersistOrderTest {
         @DisplayName("주문 추가하기로 주문이 저장되어야 한다.")
         void saveOrder_Success_ByAddOrder() {
             // given
-            EntityTransaction transaction = entityManager.getTransaction();
-
             transaction.begin();
             entityManager.persist(customer);
 
@@ -64,8 +64,6 @@ class PersistOrderTest {
         @DisplayName("고객의 주문 제거하기로 주문을 삭제할 수 있어야 한다.")
         void removeOrder_Success_ByRemoveOrderOfCustomer() {
             // given
-            EntityTransaction transaction = entityManager.getTransaction();
-
             transaction.begin();
 
             entityManager.persist(customer);
@@ -86,7 +84,6 @@ class PersistOrderTest {
         @DisplayName("clear를 한 뒤에도 주문을 삭제할 수 있어야 한다.")
         void removeOrder_Success_AfterClearPersistenceContext() {
             // given
-            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
 
             entityManager.persist(customer);
@@ -116,7 +113,6 @@ class PersistOrderTest {
         @DisplayName("주문 상품 추가하기로 주문 상품이 저장되어야 한다.")
         void saveOrderItem_Success_ByAddOrderItem() {
             // given
-            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
 
             entityManager.persist(order);
@@ -134,7 +130,6 @@ class PersistOrderTest {
         @DisplayName("주문의 주문 상품 제거하기로 주문 상품이 제거되어야 한다.")
         void removeOrderItem_Success_ByRemoveOrderItemOfOrder() {
             // given
-            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
 
             entityManager.persist(order);
@@ -155,7 +150,6 @@ class PersistOrderTest {
         @DisplayName("clear를 한 뒤에도 주문 상품을 삭제할 수 있어야 한다.")
         void removeOrderItem_Success_AfterClearPersistenceContext() {
             // given
-            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
 
             entityManager.persist(order);
@@ -185,7 +179,6 @@ class PersistOrderTest {
         @DisplayName("상품을 지정하면 상품이 저장되고 업데이트 쿼리가 발생해야 한다.")
         void saveItem_Success_BySetItem() {
             // given
-            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
 
             entityManager.persist(orderItem);
@@ -203,7 +196,6 @@ class PersistOrderTest {
         @DisplayName("null을 매핑하면 상품이 제거되어야 한다.")
         void removeItem_Success_BySetNULL() {
             // given
-            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
 
             entityManager.persist(orderItem);
